@@ -459,7 +459,16 @@ Verify you can curl to server `curl http://localhost:8991`
 
 These image builds so far have been straight forward. Creating a server for Python, .NET, JavaScript, PHP, etc. requires installing supporting libraries. We'll create a Python server
 
-Copy the code below to a file named main.py
+- Copy the code below to a file named main.py\
+- Copy the text of the [Frankenstein book](https://raw.githubusercontent.com/asweigart/codebreaker/master/frankenstein.txt) and save it to a file named `books/frankenstein.txt` off the project directory\
+- Make sure you have Python 3.10+ installed
+- Make sure the main.py code works on your local machine:
+```
+python3 main.py
+```
+It should print some stats about the characters in the frankenstein book.
+
+
 ```
 def main():
     book_path = "books/frankenstein.txt"
@@ -515,4 +524,61 @@ def get_book_text(path):
 
 
 main()
+```
+
+Create a new Dockerfile named Dockerfile.py with the following contents:
+```
+FROM debian:stable-slim
+COPY main.py main.py
+COPY books/ books/
+CMD ["python", "main.py"]
+```
+
+Build the image in the Dockerfile
+```
+docker build -t bookbot -f Dockerfile.py .
+```
+
+Run the image in a container
+```
+docker run bookbot
+```
+
+You should see an error because the Python interpreter was not installed on the image. Let's install it:
+```
+# Build from a slim Debian/Linux image
+FROM debian:stable-slim
+
+# Update apt
+RUN apt update
+RUN apt upgrade -y
+
+# Install build tooling
+RUN apt install -y build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev wget libbz2-dev
+
+# Download Python interpreter code and unpack it
+RUN wget https://www.python.org/ftp/python/3.10.8/Python-3.10.8.tgz
+RUN tar -xf Python-3.10.*.tgz
+
+# Build the Python interpreter
+RUN cd Python-3.10.8 && ./configure --enable-optimizations && make && make altinstall
+
+# Copy our code into the image
+COPY main.py main.py
+
+# Copy our data dependencies
+COPY books/ books/
+
+# Run our Python script
+CMD ["python3.10", "main.py"]
+```
+
+Rebuild the image
+```
+docker build -t bookbot -f Dockerfile.py .
+```
+
+Run the image in a new container
+```
+docker run bootbot
 ```
