@@ -1,5 +1,5 @@
-# learn-docker
-Notes and exercises from the boot-dev Learn Docker course
+# Learn Docker
+This readme contains the notes I took while going through the [Boot.dev](https://www.boot.dev) course [Learn Docker](https://www.boot.dev/courses/learn-docker). The notes do not capture all of the course materia and are intended for my own review. 
 
 ## Getting Started
 ```
